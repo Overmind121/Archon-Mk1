@@ -49,12 +49,24 @@ while True:
     higherthreshold = np.array([h+10, s+sr, v+r])
 
     mask = cv2.inRange(hsv, lowerthreshold, higherthreshold)
-    mask = cv2.GaussianBlur(mask,(5,5), gauss)
-    # final = trackCircle(mask)
+    #mask = cv2.GaussianBlur(mask,(5,5), gauss)
 
-    cv2.imshow("Frame", mask)
-    # track = cv2.bitwise_and(frame,frame,mask=final)
-    # cv2.imshow("Tracking", track)
+    cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)[-2]
+
+    #if cnts point list is non empty
+    if len(cnts)>0:
+        #c is the biggest contour array
+        c = max(cnts, key = cv2.contourArea)
+
+        #calculate the radius and center of circle
+        ((x,y), radius) = cv2.minEnclosingCircle(c)
+        cv2.circle(frame, (int(x), int(y)), int(radius),( 255, 255,0),5, 2)
+        #cv2.circle(mask, (int(x), int(y)), int(radius), color[, thickness[, lineType[, shift]]])
+
+    cv2.imshow("frame",frame)
+    cv2.imshow("mask", mask)
+    #track = cv2.bitwise_and(frame,frame,mask=final)
+    #cv2.imshow("Tracking", track)
     #bitwise function to implement the mask on the frame 
     result = cv2.bitwise_and(frame,frame,mask=mask)
     cv2.imshow("Result", result)
